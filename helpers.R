@@ -10,6 +10,7 @@ library('readxl')
 library('DT')
 library('stringr')
 library('rpivotTable')
+library('dplyr')
 
 
 

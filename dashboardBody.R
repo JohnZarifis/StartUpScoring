@@ -75,7 +75,7 @@ body <- dashboardBody(tags$head(tags$style(
                         ,selected = 'Market Data'
                         ,tabPanel('Market Data'
                         ,DT::dataTableOutput('Market')
-                        #,DT::dataTableOutput('x4')
+                        
                             )# end tabpanel
                         ,tabPanel('Market Pivot'
                                   
@@ -83,8 +83,9 @@ body <- dashboardBody(tags$head(tags$style(
                         )
                         
                         ,tabPanel('Predict Market Future'
-                        ,rpivotTableOutput("MarketFilter", height = "800px")  
-                       
+                        #,rpivotTableOutput("MarketFilter", height = "800px")  
+                        #,dygraphOutput('dygraphPred', height = 500)
+                        ,DT::dataTableOutput('dygraphPred')
                                   ) # end tabPanel
                         
                       )  #end tabbox 

@@ -13,5 +13,15 @@ View(Market)
 
 summary(Market)
 
+ Test <- tidyr::spread(Market, Species, Production)
+ 
+ View(Test)
+ 
+ 
+ dplyr::group_by(Market, Year)
+ library(dplyr)
+ Market %>% group_by(Year) %>% summarise(sum(Production))
+ 
+
 
 

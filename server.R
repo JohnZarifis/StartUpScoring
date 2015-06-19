@@ -20,11 +20,12 @@ shinyServer(function(input, output, session) {
     
     return(Market)
   })
-#   MarketFiltered <- reactive({
-#      MarketFiltered <- input$Market_rows_all
-#      View(MarketFiltered)
-#      return(MarketFiltered)
-#   })
+   MarketFiltered <- reactive({
+      Mark <- Market()
+      MarketFiltered <- Mark[input$Market_rows_all,]
+      View(MarketFiltered)
+      return(MarketFiltered)
+   })
   
   predicted <- reactive({
     
@@ -112,12 +113,13 @@ shinyServer(function(input, output, session) {
   
 ##### Market Size Data table.
   output$Market <- DT::renderDataTable(
-                   Market() 
+                   Market()
+                  ,server = FALSE
                   , class='compact'
                   , rowname = FALSE
                   , caption='Market Size'
                   , filter = 'top'
-                  ,extensions = 'ColVis'
+                  ,extensions = c('ColVis','ColReorder')
                   , options = list(
                       dom = 'C<"clear">lfrtip'
                      ,colVis = list(exclude = c(0))
@@ -146,6 +148,47 @@ shinyServer(function(input, output, session) {
 #                   filter = 'top', options=list(lengthChange = FALSE) )
 #     #server = FALSE
 #   })              
+
+  MarketToXts <- function(){
+    class(input$Sales_rows_all)
+    str(input$Sales_rows_all)
+    print(input$Sales_rows_all)
+    Mark <- Market()
+    View(Mark)
+    
+    ToForecast <- Mark[input$Sales_rows_all,, drop = FALSE]
+    View(ToForecast)
+    #ToForecast.ts <- ts(ToForecast[,-1], start = t1, frequency = 1)
+    #dates <- ToForecast[1]
+    #values <- ToForecast[,-1]
+    #ToForecast.xts <-as.xts(values, order.by = as.Date(
+    #  paste0(dates,"-01-01",format="%Y-01-01")
+    #))
+    
+    #return(sales.xts)
+    #return(ToForecast.xts)
+    return(ToForecast)
+  }
+  
+  output$dygraphPred <- DT::renderDataTable(
+    
+    MarketFiltered() %>% group_by(Year) %>% summarise(sum(Production))
+   
+  )
+
+
+
+#output$dygraphPred <- renderDygraph({
+   #ToForecast <- Market[input$Sales_rows_all,]
+   #View(ToForecast)
+#    hw <- HoltWinters(ldeaths)
+#    p <- predict(hw, n.ahead = 36, prediction.interval = TRUE)
+#    all <- cbind(ldeaths, p)
+#    dygraph(all, "Deaths from Lung Disease (UK)") %>%
+#      dySeries("ldeaths", label = "Actual") %>%
+#      dySeries(c("p.lwr", "p.fit", "p.upr"), label = "Predicted")  
+#})
+
 
 # Debugging
 # output$x5 = renderPrint({ # for debugging reasons
