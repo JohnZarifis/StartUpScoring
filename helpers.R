@@ -13,14 +13,14 @@ library('rpivotTable')
 
 
 
-Bass.Default.Model <- function(M,P,Q,t1,t2){
+Bass.Default.Model <- function(M,P,Q,t1,t2,Inc){
   
   t <- (t1-t1):(t2-t1)
   #Sales <- M*(((P+Q)^2/P) * exp(-(P+Q)*t) / (1+(Q/P)*exp(-(P+Q)*t))^2
   Sales <- M*(((P+Q)^2/P) * exp(-(P+Q)*t)) / (1+(Q/P)*exp(-(P+Q)*t))^2
   #print(Sales)
   Sales <- round(Sales)
-  Sales.frame <- data.frame( 'Years'= t1:t2,'Sales'= Sales,'CumSales'= cumsum(Sales))
+  Sales.frame <- data.frame( 'Years'= t1:t2,'Sales'= Sales,'CumSales'= cumsum(Sales),'Income' = Sales*Inc)
   #Sales.frame <- Sales.frame[-1,]
   #View(Sales.frame)
   Sales.ts <- ts(Sales.frame[,-1], start = t1, frequency = 1)

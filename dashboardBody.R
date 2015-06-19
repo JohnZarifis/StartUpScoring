@@ -24,6 +24,7 @@ body <- dashboardBody(tags$head(tags$style(
                        ,tabPanel('Data'
                                  
                                  ,DT::dataTableOutput('Sales')
+                                 #,verbatimTextOutput('x5') # for debugging reasons
                                  )
                        
                        
@@ -41,17 +42,19 @@ body <- dashboardBody(tags$head(tags$style(
                            ,sliderInput('qSize','Q-Imitation:', min = 0.2,max = 0.8, value = 0.38, step = 0.01)
                            ,sliderInput('Years','Years:'
                                         ,min = as.integer(format(Sys.Date(), format="%Y")) +1
-                                        ,max = as.integer(format(Sys.Date(), format="%Y"))+30
-                                        ,value = c(as.integer(format(Sys.Date(), format="%Y"))+1,as.integer(format(Sys.Date(), format="%Y"))+30), step = 1, sep = '')
-                           ,checkboxGroupInput("checkGroup", 
-                                               label = h3("New/Cummulative Sales"), 
-                                               choices = list("New Sales" = 'Sales', 
-                                                              "Cummulative Sales" = 'CumSales'),
-                                               selected = 'Sales')
+                                        ,max = as.integer(format(Sys.Date(), format="%Y"))+25
+                                        ,value = c(as.integer(format(Sys.Date(), format="%Y"))+1,as.integer(format(Sys.Date(), format="%Y"))+25), step = 1, sep = '')
+                           ,sliderInput('Price','Price Policy (Euro/Ton)',min = 0 , max = 20, value = 4, step = 1)
+                           ,checkboxGroupInput("checkGroup", inline = 'TRUE'
+                                               ,label = h3("New/Cummulative Sales") 
+                                               ,choices = list("New Sales" = 'Sales' 
+                                                               ,"Cummulative Sales" = 'CumSales'
+                                                               ,"Income" = 'Income')
+                                               ,selected = 'Sales')
                            ,hr()
                            ,checkboxInput("showgrid", label = "Show Grid", value = TRUE)
                            ,checkboxInput("fillGraph", label = "Fill Graph", value = TRUE)
-                           ,shinyFilesButton('file', 'Select a File', 'Please select a file', FALSE)
+                           ,shinyFilesButton('file', 'Upload Market Size Data', 'Please select a file', FALSE)
                            
                            ) # end box
                            

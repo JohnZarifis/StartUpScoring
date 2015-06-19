@@ -6,6 +6,8 @@ colnames( Market ) <- str_replace_all(colnames( Market ), c(" " = "", "-" = ".",
 i <- sapply(Market, is.character)
 Market[i] <- lapply(Market[i], as.factor)
 
+print(i)
+
 
 View(Market)
 

@@ -20,11 +20,11 @@ shinyServer(function(input, output, session) {
     
     return(Market)
   })
-  MarketFiltered <- reactive({
-     MarketFiltered <- input$Market_rows_all
-     View(MarketFiltered)
-     return(MarketFiltered)
-  })
+#   MarketFiltered <- reactive({
+#      MarketFiltered <- input$Market_rows_all
+#      View(MarketFiltered)
+#      return(MarketFiltered)
+#   })
   
   predicted <- reactive({
     
@@ -33,8 +33,9 @@ shinyServer(function(input, output, session) {
             Q = input$qSize
             t1 = as.integer(input$Years[1])
             t2 = as.integer(input$Years[2])
+            Inc = as.numeric(input$Price)
             #level = as.numeric(input$interval)
-            Sales <- Bass.Default.Model(M,P,Q,t1,t2)
+            Sales <- Bass.Default.Model(M,P,Q,t1,t2,Inc)
             return(Sales)
   })
   
@@ -47,15 +48,36 @@ shinyServer(function(input, output, session) {
     
     if(is.null(input$checkGroup))
       return()
+    #if(length(input$checkGroup)== 1){
+      DataToPlot <- DataToPlot[,input$checkGroup]
+      dygraph(DataToPlot, main = "Predicted New Sales (Tons/Year)") %>%
+      dyOptions(drawGrid = input$showgrid,strokeWidth = 3,fillGraph = input$fillGraph, fillAlpha = 0.4)%>% 
+      dyRangeSelector() %>%
+      dyAxis( 
+            name="x"
+            ,axisLabelFormatter = "function(d){ return d.getFullYear() }")
+#     } # if i want secondary axis
+#     else {
+#       DataToPlot <- DataToPlot[,input$checkGroup]
+#       firstAx <- head(input$checkGroup,n=-1)
+#       SecondAx <-tail(input$checkGroup,1)
+#       #print(firstAx)
+#       #print(SecondAx)
+#       #DataToPlot <- DataToPlot[,firstAx]
+#       dygraph(DataToPlot, main = "Predicted New Sales (Tons/Year)") %>%
+#       dyOptions(drawGrid = input$showgrid,strokeWidth = 3,fillGraph = input$fillGraph, fillAlpha = 0.4)%>% 
+#       dyRangeSelector() %>%
+#       dyAxis( 
+#         name="x"
+#         ,axisLabelFormatter = "function(d){ return d.getFullYear() }"
+#       
+#        )%>%
+#        dyAxis("y", label = "Tons of Production") %>%
+#        dyAxis("y2", label = "Euro/Year", independentTicks = TRUE) %>%
+#        dySeries(SecondAx, axis = 'y2')
+#       
+#     }
     
-    DataToPlot <- DataToPlot[,input$checkGroup]
-    dygraph(DataToPlot, main = "Predicted New Sales (Tons/Year)") %>%
-    dyOptions(drawGrid = input$showgrid,strokeWidth = 3,fillGraph = input$fillGraph, fillAlpha = 0.4)%>% 
-    dyRangeSelector() %>%
-    dyAxis( 
-        name="x"
-      ,axisLabelFormatter = "function(d){ return d.getFullYear() }"
-      )
       
   })
   
@@ -63,30 +85,46 @@ shinyServer(function(input, output, session) {
   #     Dislpay dataset (Data)
   #---------------------------------------------------------------------------------------------------
   # Dislpay dataset
-  
-  output$Sales <- DT::renderDataTable({
+  SalesToDF <- function(){
     Sales <- predicted() 
     # convert it to data frame
     Sales <- data.frame(Year = substr(index(Sales), 1, 4), coredata(Sales))
     Sales <- Sales[c('Year',input$checkGroup)]
-    DT::datatable(  Sales
-                  , class='compact'
-                  , rowname = FALSE, caption='Predicted Sales'
-                  , filter = 'top'
-                  , options=list(autoWidth=TRUE) ) 
-  })
+    return(Sales)
+  }
+  
+  output$Sales <- DT::renderDataTable(
+    
+       SalesToDF()
+       ,server = FALSE
+       , class='compact'
+       , rowname = FALSE, caption='Predicted Sales'
+       , filter = 'top'
+       #,extensions = 'FixedHeader' # not working . double headers
+       ,extensions = 'ColVis'
+       , options = list(
+           dom = 'C<"clear">lfrtip',
+           colVis = list(exclude = c(0))
+           ,autoWidth=TRUE,pageLength = 15
+                        )
+       )
+       
   
 ##### Market Size Data table.
-  output$Market <- DT::renderDataTable({
-    Market <- Market() 
-
-    DT::datatable(Market 
+  output$Market <- DT::renderDataTable(
+                   Market() 
                   , class='compact'
                   , rowname = FALSE
                   , caption='Market Size'
                   , filter = 'top'
-                  , options=list(autoWidth=TRUE) )
-  })              
+                  ,extensions = 'ColVis'
+                  , options = list(
+                      dom = 'C<"clear">lfrtip'
+                     ,colVis = list(exclude = c(0))
+                     ,autoWidth=TRUE,pageLength = 15
+                                  ) 
+                  )
+                 
   
   ###### Pivot #########
   output$MarketPivot <- renderRpivotTable({
@@ -109,6 +147,18 @@ shinyServer(function(input, output, session) {
 #     #server = FALSE
 #   })              
 
-
-
+# Debugging
+# output$x5 = renderPrint({ # for debugging reasons
+#   cat('\nAll rows (same as rows_current in the server mode):\n\n')
+#   cat(input$Sales_rows_all, sep = ' | ')
+#   cat('\n')
+#   cat('Rows on the current page:\n\n')
+#   cat(input$Sales_rows_current, sep = ' | ')
+#   cat('\n')
+#   cat('\nSelected rows:\n\n')
+#   cat(input$Sales_rows_selected, sep = ' | ')
+  
 })
+
+
+#})
