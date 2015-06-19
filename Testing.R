@@ -1,0 +1,5 @@
+Market <- read_excel("~/Projects/StartUpScoring/Market.xlsx", sheet = 1 ,col_names = TRUE, na='na')
+View(Market)
+colnames(Market)
+colnames( Market ) <- str_replace_all(colnames( Market ), c(" " = "", "-" = ".","%"=".perc"))
+View(Market)
