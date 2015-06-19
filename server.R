@@ -14,6 +14,8 @@ shinyServer(function(input, output, session) {
     fileSelected <- parseFilePaths(volumes, input$file)
     Market <- read_excel(as.character(fileSelected$datapath), sheet = 1 ,col_names = TRUE, na='na')
     colnames( Market ) <- str_replace_all(colnames( Market ), c(" " = "", "-" = ".","%"=".perc"))
+    i <- sapply(Market, is.character)
+    Market[i] <- lapply(Market[i], as.factor)
     #View(Market)
     
     return(Market)
@@ -67,16 +69,23 @@ shinyServer(function(input, output, session) {
     # convert it to data frame
     Sales <- data.frame(Year = substr(index(Sales), 1, 4), coredata(Sales))
     Sales <- Sales[c('Year',input$checkGroup)]
-    DT::datatable(Sales, class='compact', rowname = FALSE, caption='Predicted Sales',
-                  filter = 'top', options=list(autoWidth=TRUE) ) 
+    DT::datatable(  Sales
+                  , class='compact'
+                  , rowname = FALSE, caption='Predicted Sales'
+                  , filter = 'top'
+                  , options=list(autoWidth=TRUE) ) 
   })
   
 ##### Market Size Data table.
   output$Market <- DT::renderDataTable({
+    Market <- Market() 
 
-    DT::datatable(Market() 
-                  , class='compact', rowname = FALSE, caption='Predicted Sales',
-                  filter = 'top', options=list(autoWidth=TRUE) )
+    DT::datatable(Market 
+                  , class='compact'
+                  , rowname = FALSE
+                  , caption='Market Size'
+                  , filter = 'top'
+                  , options=list(autoWidth=TRUE) )
   })              
   
   ###### Pivot #########
@@ -92,13 +101,13 @@ shinyServer(function(input, output, session) {
                 )
   } )
   
-  output$MarketFilter <- DT::renderDataTable({
-    
-    DT::datatable(MarketFiltered()  
-                  , class='compact', rowname = FALSE, caption='Predicted Sales',
-                  filter = 'top', options=list(lengthChange = FALSE) )
-    #server = FALSE
-  })              
+#   output$MarketFilter <- DT::renderDataTable({
+#     
+#     DT::datatable(MarketFiltered()  
+#                   , class='compact', rowname = FALSE, caption='Predicted Sales',
+#                   filter = 'top', options=list(lengthChange = FALSE) )
+#     #server = FALSE
+#   })              
 
 
 

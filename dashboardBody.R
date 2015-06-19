@@ -9,21 +9,21 @@ body <- dashboardBody(tags$head(tags$style(
              ,fluidRow(
               column(width = 9,
                      tabBox(
-                        title = "Bass Diffusion Model"
+                        title = 'Bass Diffusion Model'
                         ,width = NULL
-                        ,status = "warning"
+                        ,status = 'warning'
                        # The id lets us use input$tabset1 on the server to find the current tab
-                       ,id = "tabset1", height = "600px"
+                       ,id = 'tabset1', height = '600px'
                        ,selected = 'Graph'
                        ,tabPanel('Graph'
                                 
-                                ,dygraphOutput("dygraph", height = 500)
+                                ,dygraphOutput('dygraph', height = 500)
                                 )
                        
                        
                        ,tabPanel('Data'
                                  
-                                 ,DT::dataTableOutput("Sales")
+                                 ,DT::dataTableOutput('Sales')
                                  )
                        
                        
@@ -64,11 +64,11 @@ body <- dashboardBody(tags$head(tags$style(
              ,fluidRow(
                column(width = 12,
                       tabBox(
-                         title = "Bass Diffusion Model"
+                         title = 'Estimate Market Size'
                         ,width = NULL
-                        ,status = "warning"
+                        ,status = 'warning'
                         # The id lets us use input$tabset1 on the server to find the current tab
-                        ,id = "tabset2" , height = "600px"
+                        ,id = 'tabset2' , height = '600px'
                         ,selected = 'Market Data'
                         ,tabPanel('Market Data'
                         ,DT::dataTableOutput('Market')
@@ -81,13 +81,7 @@ body <- dashboardBody(tags$head(tags$style(
                         
                         ,tabPanel('Predict Market Future'
                         ,rpivotTableOutput("MarketFilter", height = "800px")  
-                                           
-                        ,fluidRow(
-#                                   column(6,
-#                                          selectInput(inputId='groupOrientation', label='Orientation', choices=c("All", unique(as.character(df$Orientation))), selected="All", multiple=TRUE),
-#                                          selectInput(inputId='groupSystem', label='System', choices=c("All", unique(as.character(df$System))), selected="All", multiple=TRUE) 
-#                                   )
-                                  )
+                       
                                   ) # end tabPanel
                         
                       )  #end tabbox 
