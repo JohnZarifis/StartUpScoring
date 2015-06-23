@@ -37,9 +37,9 @@ body <- dashboardBody(tags$head(tags$style(
                            ,width = NULL
                            ,solidHeader = TRUE
                            ,collapsible = TRUE
-                           ,sliderInput('marketSize','Market Size:', min = 500,max = 500000, value = 10000, step = 500, sep = '.')
+                           ,sliderInput('marketSize','Market Size:', min = 1000,max = 900000, value = 100000, step = 500, sep = '.')
                            ,sliderInput('pSize',' P-Innovation:', min = 0.01,max = 1, value = 0.03, step = 0.01)
-                           ,sliderInput('qSize','Q-Imitation:', min = 0.2,max = 0.8, value = 0.38, step = 0.01)
+                           ,sliderInput('qSize','Q-Imitation:', min = 0.1,max = 0.9, value = 0.38, step = 0.01)
                            ,sliderInput('Years','Years:'
                                         ,min = as.integer(format(Sys.Date(), format="%Y")) +1
                                         ,max = as.integer(format(Sys.Date(), format="%Y"))+25
@@ -49,7 +49,8 @@ body <- dashboardBody(tags$head(tags$style(
                                                ,label = h3("New/Cummulative Sales") 
                                                ,choices = list("New Sales" = 'Sales' 
                                                                ,"Cummulative Sales" = 'CumSales'
-                                                               ,"Income" = 'Income')
+                                                               ,"Income" = 'Income'
+                                                               ,'Cost'='Cost')
                                                ,selected = 'Sales')
                            ,hr()
                            ,checkboxInput("showgrid", label = "Show Grid", value = TRUE)
@@ -84,8 +85,8 @@ body <- dashboardBody(tags$head(tags$style(
                         
                         ,tabPanel('Predict Market Future'
                         #,rpivotTableOutput("MarketFilter", height = "800px")  
-                        #,dygraphOutput('dygraphPred', height = 500)
-                        ,DT::dataTableOutput('dygraphPred')
+                        ,dygraphOutput('dygraphPred', height = 500)
+                        #,DT::dataTableOutput('dygraphPred')
                                   ) # end tabPanel
                         
                       )  #end tabbox 

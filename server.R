@@ -20,10 +20,11 @@ shinyServer(function(input, output, session) {
     
     return(Market)
   })
+  
    MarketFiltered <- reactive({
       Mark <- Market()
       MarketFiltered <- Mark[input$Market_rows_all,]
-      View(MarketFiltered)
+      #View(MarketFiltered)
       return(MarketFiltered)
    })
   
@@ -119,7 +120,7 @@ shinyServer(function(input, output, session) {
                   , rowname = FALSE
                   , caption='Market Size'
                   , filter = 'top'
-                  ,extensions = c('ColVis','ColReorder')
+                  ,extensions = c('ColVis')
                   , options = list(
                       dom = 'C<"clear">lfrtip'
                      ,colVis = list(exclude = c(0))
@@ -150,44 +151,51 @@ shinyServer(function(input, output, session) {
 #   })              
 
   MarketToXts <- function(){
-    class(input$Sales_rows_all)
-    str(input$Sales_rows_all)
-    print(input$Sales_rows_all)
-    Mark <- Market()
-    View(Mark)
-    
-    ToForecast <- Mark[input$Sales_rows_all,, drop = FALSE]
-    View(ToForecast)
-    #ToForecast.ts <- ts(ToForecast[,-1], start = t1, frequency = 1)
-    #dates <- ToForecast[1]
+    #Mark <- Market()
+    Mark <- MarketFiltered()
+    ToForecast <- Mark %>% group_by(Year) %>% summarise(sum(Production))
+    i <- sapply(ToForecast, is.factor)
+    ToForecast[i] <- lapply(ToForecast[i], as.character)
+    i <- sapply(ToForecast, is.character)
+    ToForecast[i] <- lapply(ToForecast[i], as.integer)
+    #View(ToForecast)
+    #print(class(ToForecast))
+    #print(summary(ToForecast))
+    ToForecast.ts <- ts(ToForecast[,-1], start = 1990, frequency = 1)
+    #dates <- ToForecast$Year #ToForecast[[1]]    
+    #View(dates)
     #values <- ToForecast[,-1]
-    #ToForecast.xts <-as.xts(values, order.by = as.Date(
+    #View(values)
+    # ToForecast.xts <-as.xts(values, order.by = as.Date(
     #  paste0(dates,"-01-01",format="%Y-01-01")
     #))
-    
-    #return(sales.xts)
+    return(ToForecast.ts)
     #return(ToForecast.xts)
-    return(ToForecast)
-  }
-  
-  output$dygraphPred <- DT::renderDataTable(
     
-    MarketFiltered() %>% group_by(Year) %>% summarise(sum(Production))
-   
-  )
+  }
+#   output$dygraphPred <- DT::renderDataTable(
+#     
+#     MarketFiltered() %>% group_by(Year) %>% summarise(sum(Production))
+#    
+#   )
 
 
 
-#output$dygraphPred <- renderDygraph({
-   #ToForecast <- Market[input$Sales_rows_all,]
-   #View(ToForecast)
-#    hw <- HoltWinters(ldeaths)
-#    p <- predict(hw, n.ahead = 36, prediction.interval = TRUE)
-#    all <- cbind(ldeaths, p)
-#    dygraph(all, "Deaths from Lung Disease (UK)") %>%
-#      dySeries("ldeaths", label = "Actual") %>%
-#      dySeries(c("p.lwr", "p.fit", "p.upr"), label = "Predicted")  
-#})
+output$dygraphPred <- renderDygraph({
+    Market <- MarketToXts()
+    hw <- HoltWinters(Market,gamma=FALSE)
+    p <- predict(hw, n.ahead = 10, prediction.interval = TRUE)
+    M <-as.xts(Market)
+    fit <- as.xts(p[,'fit'])
+    lwr <-as.xts(p[,'lwr'])
+    upr<- as.xts(p[,'upr'])
+    all <- cbind( mk = M,fit=fit,lwr=lwr,upr=upr)
+    View(all)
+   dygraph(all, "Fish Production") %>%
+      dySeries("sum.Production.", label = "Actual") %>%
+      dySeries(c("lwr", "fit", "upr"), label = "Predicted") %>%
+      dyRangeSelector()
+})
 
 
 # Debugging
